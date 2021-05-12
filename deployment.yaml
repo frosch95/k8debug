@@ -1,0 +1,75 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: k8debug
+spec:
+  selector:
+    app: k8debug
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8debug
+spec:
+  selector:
+    matchLabels:
+      app: k8debug
+  template:
+    metadata:
+      labels:
+        app: k8debug
+    spec:
+      containers:
+      - name: k8debug
+        image: k8debug:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5000
+        imagePullPolicy: Never
+      restartPolicy: Always
+
+---
+
+# All resources definition must be declared
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: k8debug
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+  - kind: Rule
+    match: PathPrefix(`/k8debug`)
+    services:
+    - name: k8debug
+      namespace: default
+      port: 80
+    middlewares:
+    - name: stripprefix
+      namespace: default
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix
+  namespace: default
+
+spec:
+  stripPrefix:
+    prefixes:
+      - /k8debug
