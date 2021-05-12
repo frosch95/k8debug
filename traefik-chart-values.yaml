@@ -1,0 +1,14 @@
+service:
+  enabled: true
+  type: NodePort
+ports:
+  web:
+    nodePort: 32080
+  websecure:
+    nodePort: 32443
+logs:
+  general:
+    level: INFO
+  access:
+    enabled: true
+ 
