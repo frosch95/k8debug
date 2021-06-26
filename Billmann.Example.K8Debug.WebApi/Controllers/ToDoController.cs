@@ -29,6 +29,7 @@ namespace Billmann.Example.K8Debug.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
+            _logger.LogInformation("Get called");
             var items = await _database.All();
             var readModelItems = items.Select(x => ToReadModel(x)).ToList();
             return Ok(items);
@@ -39,6 +40,7 @@ namespace Billmann.Example.K8Debug.WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetItem(Guid id)
         {
+            _logger.LogInformation("GetItem({Id}) called", id);
             var item = await _database.Find(id);
             if (item == null) {
                 return NotFound();
@@ -52,6 +54,7 @@ namespace Billmann.Example.K8Debug.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateItem(ToDoItemCreateModel createModel)
         {
+            _logger.LogInformation("CreateItem() calles");
             if (string.IsNullOrWhiteSpace(createModel.Title) || string.IsNullOrWhiteSpace(createModel.Description))
             {
                 return new BadRequestObjectResult("tile and description must contain content");
